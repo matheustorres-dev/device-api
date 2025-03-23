@@ -3,15 +3,15 @@ package com.challenge.deviceapi.model;
 import com.challenge.deviceapi.enumeration.DeviceState;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @EqualsAndHashCode
 public class Device {
 

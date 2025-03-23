@@ -1,8 +1,10 @@
 package com.challenge.deviceapi.service.impl;
 
 import com.challenge.deviceapi.dto.DeviceDTO;
+import com.challenge.deviceapi.dto.request.DeviceCreateRequestDTO;
 import com.challenge.deviceapi.enumeration.DeviceState;
 import com.challenge.deviceapi.exception.DeviceInUseException;
+import com.challenge.deviceapi.exception.DeviceInvalidException;
 import com.challenge.deviceapi.exception.DeviceNotFoundException;
 import com.challenge.deviceapi.model.Device;
 import com.challenge.deviceapi.repository.DeviceRepository;
@@ -54,6 +56,22 @@ class DeviceServiceTest {
 
         assertThrows(DeviceNotFoundException.class, () -> deviceService.getDeviceById(deviceId));
         verify(deviceRepository, only()).findById(deviceId);
+    }
+
+    @Test
+    void whenCreateDeviceWithValidRequestThenReturnCreatedDeviceTest() {
+        final DeviceCreateRequestDTO request = generateValidCreateDeviceRequest();
+        final Device device = DeviceTestUtils.generateDeviceEntity();
+
+        when(deviceRepository.save(any(Device.class))).thenReturn(device);
+
+        final DeviceDTO result = deviceService.createDevice(request);
+
+        assertNotNull(result);
+        assertEquals(deviceName, result.getName());
+        assertEquals(deviceBrand, result.getBrand());
+        assertEquals(deviceStateAvailable, result.getState());
+        verify(deviceRepository, times(1)).save(any(Device.class));
     }
 
     @Test

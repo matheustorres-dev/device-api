@@ -104,7 +104,7 @@
 										<limit>
 											<counter>LINE</counter>
 											<value>COVEREDRATIO</value>
-											<minimum>0.00</minimum>
+											<minimum>0.35</minimum>
 										</limit>
 									</limits>
 								</rule>
@@ -114,7 +114,7 @@
 										<limit>
 											<counter>LINE</counter>
 											<value>COVEREDRATIO</value>
-											<minimum>0.15</minimum>
+											<minimum>0.35</minimum>
 										</limit>
 									</limits>
 								</rule>
@@ -124,7 +124,8 @@
 				</executions>
 				<configuration>
 					<excludes>
-						<exclude>com/itau/**/PasswordValidatorApplication.class</exclude>
+						<exclude>com/challenge/**/DeviceApiApplication.class</exclude>
+						<exclude>com/challenge/**/GlobalExceptionHandler.class</exclude>
 					</excludes>
 				</configuration>
 			</plugin>
