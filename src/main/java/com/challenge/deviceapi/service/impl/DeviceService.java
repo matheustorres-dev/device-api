@@ -3,6 +3,8 @@ package com.challenge.deviceapi.service.impl;
 import com.challenge.deviceapi.dto.DeviceDTO;
 import com.challenge.deviceapi.dto.DeviceFilter;
 import com.challenge.deviceapi.dto.request.DeviceRequestDTO;
+import com.challenge.deviceapi.enumeration.DeviceState;
+import com.challenge.deviceapi.exception.DeviceInUseException;
 import com.challenge.deviceapi.exception.DeviceNotFoundException;
 import com.challenge.deviceapi.mapper.DeviceMapper;
 import com.challenge.deviceapi.model.Device;
@@ -13,8 +15,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -63,8 +64,10 @@ public class DeviceService implements IDeviceService {
     public DeviceDTO createDevice(final DeviceRequestDTO deviceRequest) {
         log.info("Creating a device: {}", deviceRequest);
 
-        Device createdDevice = deviceRepository.save(DeviceMapper.requestToEntity(deviceRequest));
-        return DeviceMapper.toDTO(createdDevice);
+        DeviceDTO createdDevice = DeviceMapper.toDTO(deviceRepository.save(DeviceMapper.requestToEntity(deviceRequest)));
+
+        log.info("Device created successfully: {}", createdDevice);
+        return createdDevice;
     }
 
     @Override
@@ -73,22 +76,42 @@ public class DeviceService implements IDeviceService {
 
         Device existingDevice = this.findDeviceById(deviceId);
 
-        if (!StringUtils.isBlank(deviceRequest.getName()))
-            existingDevice.setName(deviceRequest.getName());
+        if (DeviceState.IN_USE.equals(existingDevice.getState())) {
+            log.error("Device {} is IN_USE, cannot proceed with update.", deviceId);
+            throw new DeviceInUseException();
+        }
+        else {
+            log.info("Device {} not IN_USE, able to UPDATE with the current state {}", deviceId, existingDevice.getState());
 
-        if (!StringUtils.isBlank(deviceRequest.getBrand()))
-            existingDevice.setBrand(deviceRequest.getBrand());
+            if (!StringUtils.isBlank(deviceRequest.getName()))
+                existingDevice.setName(deviceRequest.getName());
 
-        Device updatedDevice = deviceRepository.save(existingDevice);
-        return DeviceMapper.toDTO(updatedDevice);
+            if (!StringUtils.isBlank(deviceRequest.getBrand()))
+                existingDevice.setBrand(deviceRequest.getBrand());
+        }
+
+        DeviceDTO updatedDevice = DeviceMapper.toDTO(deviceRepository.save(existingDevice));
+
+        log.info("Device updated successfully: {}", updatedDevice);
+        return updatedDevice;
     }
 
     @Override
     public void deleteDevice(final String deviceId) {
         log.info("Deleting a device by Id: {}", deviceId);
+
         Device deviceToDelete = this.findDeviceById(deviceId);
 
-        deviceRepository.deleteById(deviceToDelete.getId());
+        if (DeviceState.IN_USE.equals(deviceToDelete.getState())) {
+            log.error("Device {} is IN_USE, cannot proceed with deletion.", deviceId);
+            throw new DeviceInUseException();
+        }
+        else {
+            log.info("Device {} not IN_USE, able to DELETE with the current state {}", deviceId, deviceToDelete.getState());
+            deviceRepository.deleteById(deviceToDelete.getId());
+        }
+
+        log.info("Device {} deleted successfully", deviceId);
     }
 
     private Device findDeviceById(String deviceId) {

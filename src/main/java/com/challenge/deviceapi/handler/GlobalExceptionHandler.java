@@ -1,6 +1,7 @@
 package com.challenge.deviceapi.handler;
 
 import com.challenge.deviceapi.dto.ErrorMessage;
+import com.challenge.deviceapi.exception.DeviceInUseException;
 import com.challenge.deviceapi.exception.DeviceNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +17,14 @@ class GlobalExceptionHandler {
                                                             .httpStatus(HttpStatus.NOT_FOUND.value())
                                                             .build(),
                                                             HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(DeviceInUseException.class)
+    public ResponseEntity<ErrorMessage> handleConflictException(DeviceInUseException ex) {
+        return new ResponseEntity<>(ErrorMessage.builder().message(ex.getMessage())
+                .httpStatus(HttpStatus.CONFLICT.value())
+                .build(),
+                HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(Exception.class)
