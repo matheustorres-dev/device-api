@@ -3,6 +3,7 @@ package com.challenge.deviceapi.service.impl;
 import com.challenge.deviceapi.dto.DeviceDTO;
 import com.challenge.deviceapi.dto.DeviceFilter;
 import com.challenge.deviceapi.dto.request.DeviceRequestDTO;
+import com.challenge.deviceapi.exception.DeviceNotFoundException;
 import com.challenge.deviceapi.mapper.DeviceMapper;
 import com.challenge.deviceapi.model.Device;
 import com.challenge.deviceapi.repository.DeviceRepository;
@@ -90,6 +91,6 @@ public class DeviceService implements IDeviceService {
         log.info("Getting a device by Id: {}", deviceId);
 
         return deviceRepository.findById(deviceId)
-                .orElseThrow(() -> new RuntimeException("Device not found"));
+                .orElseThrow(DeviceNotFoundException::new);
     }
 }
