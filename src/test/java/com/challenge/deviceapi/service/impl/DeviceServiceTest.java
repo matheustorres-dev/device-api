@@ -1,6 +1,7 @@
 package com.challenge.deviceapi.service.impl;
 
 import com.challenge.deviceapi.dto.DeviceDTO;
+import com.challenge.deviceapi.dto.DeviceFilter;
 import com.challenge.deviceapi.dto.request.DeviceCreateRequestDTO;
 import com.challenge.deviceapi.dto.request.DeviceUpdateRequestDTO;
 import com.challenge.deviceapi.enumeration.DeviceState;
@@ -15,6 +16,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import static com.challenge.deviceapi.util.DeviceTestUtils.*;
@@ -60,6 +63,74 @@ class DeviceServiceTest {
     }
 
     @Test
+    void whenGetDevicesWithEmptyFilterThenReturnAllDevicesTest() {
+        final DeviceFilter filter = generateEmptyFilter();
+        final List<Device> devices = List.of(generateDeviceEntity(), generateDeviceEntity());
+
+        when(deviceRepository.findAll()).thenReturn(devices);
+
+        final List<DeviceDTO> result = deviceService.getDevices(filter);
+
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        verify(deviceRepository, only()).findAll();
+    }
+
+    @Test
+    void whenGetDevicesWithNullFilterThenReturnAllDevicesTest() {
+        final DeviceFilter filter = null;
+        final List<Device> devices = List.of(generateDeviceEntity(), generateDeviceEntity());
+
+        when(deviceRepository.findAll()).thenReturn(devices);
+
+        final List<DeviceDTO> result = deviceService.getDevices(filter);
+
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        verify(deviceRepository, only()).findAll();
+    }
+
+    @Test
+    void whenGetDevicesWithNameFilterThenReturnFilteredDevicesTest() {
+        final DeviceFilter filter = DeviceFilter.builder().name(deviceName).build();
+        final List<Device> devices = List.of(generateDeviceEntity());
+
+        when(deviceRepository.findByName(deviceName)).thenReturn(devices);
+
+        final List<DeviceDTO> result = deviceService.getDevices(filter);
+
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals(deviceName, result.getFirst().getName());
+        verify(deviceRepository, only()).findByName(deviceName);
+    }
+
+    @Test
+    void whenGetDevicesWithBrandFilterThenReturnFilteredDevicesTest() {
+        final DeviceFilter filter = DeviceFilter.builder().brand(deviceBrand).build();
+        final List<Device> devices = List.of(generateDeviceEntity());
+
+        when(deviceRepository.findByBrand(deviceBrand)).thenReturn(devices);
+
+        final List<DeviceDTO> result = deviceService.getDevices(filter);
+
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals(deviceBrand, result.getFirst().getBrand());
+        verify(deviceRepository, only()).findByBrand(deviceBrand);
+    }
+
+    @Test
+    void whenGetDevicesWithFilterAndNoDevicesFoundThenThrowDeviceNotFoundExceptionTest() {
+        final DeviceFilter filter = DeviceFilter.builder().name(deviceName).build();
+
+        when(deviceRepository.findByName(deviceName)).thenReturn(Collections.emptyList());
+
+        assertThrows(DeviceNotFoundException.class, () -> deviceService.getDevices(filter));
+        verify(deviceRepository, only()).findByName(deviceName);
+    }
+
+    @Test
     void whenCreateDeviceWithValidRequestThenReturnCreatedDeviceTest() {
         final DeviceCreateRequestDTO request = generateValidCreateDeviceRequest();
         final Device device = DeviceTestUtils.generateDeviceEntity();
@@ -89,6 +160,54 @@ class DeviceServiceTest {
         assertNotNull(result);
         assertEquals(deviceName, result.getName());
         assertEquals(deviceBrand, result.getBrand());
+        assertEquals(deviceStateAvailable, result.getState());
+        assertNotNull(result.getCreationDate());
+        verify(deviceRepository, times(1)).findById(deviceId);
+        verify(deviceRepository, times(1)).save(any(Device.class));
+    }
+
+    @Test
+    void whenPartiallyUpdateDeviceWithOnlyNameRequestThenReturnUpdatedDeviceTest() {
+        final String updatedName = "updatedName";
+
+        final DeviceUpdateRequestDTO request = DeviceUpdateRequestDTO.builder()
+                .name(updatedName)
+                .build();
+
+        final Device device = DeviceTestUtils.generateDeviceEntity();
+
+        when(deviceRepository.findById(deviceId)).thenReturn(Optional.of(device));
+        when(deviceRepository.save(any(Device.class))).thenReturn(device);
+
+        final DeviceDTO result = deviceService.updateDevice(deviceId, request);
+
+        assertNotNull(result);
+        assertEquals(updatedName, result.getName());
+        assertEquals(deviceBrand, result.getBrand());
+        assertEquals(deviceStateAvailable, result.getState());
+        assertNotNull(result.getCreationDate());
+        verify(deviceRepository, times(1)).findById(deviceId);
+        verify(deviceRepository, times(1)).save(any(Device.class));
+    }
+
+    @Test
+    void whenPartiallyUpdateDeviceWithOnlyBrandRequestThenReturnUpdatedDeviceTest() {
+        final String updatedBrand = "updatedBrand";
+
+        final DeviceUpdateRequestDTO request = DeviceUpdateRequestDTO.builder()
+                .brand(updatedBrand)
+                .build();
+
+        final Device device = DeviceTestUtils.generateDeviceEntity();
+
+        when(deviceRepository.findById(deviceId)).thenReturn(Optional.of(device));
+        when(deviceRepository.save(any(Device.class))).thenReturn(device);
+
+        final DeviceDTO result = deviceService.updateDevice(deviceId, request);
+
+        assertNotNull(result);
+        assertEquals(deviceName, result.getName());
+        assertEquals(updatedBrand, result.getBrand());
         assertEquals(deviceStateAvailable, result.getState());
         assertNotNull(result.getCreationDate());
         verify(deviceRepository, times(1)).findById(deviceId);

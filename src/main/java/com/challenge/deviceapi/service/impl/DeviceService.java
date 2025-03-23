@@ -44,10 +44,10 @@ public class DeviceService implements IDeviceService {
 
         if (!ObjectUtils.isEmpty(deviceFilter) && !deviceFilter.isEmpty()) {
 
-            if (StringUtils.isBlank(deviceFilter.getName()))
+            if (!StringUtils.isBlank(deviceFilter.getName()))
                 devices = deviceRepository.findByName(deviceFilter.getName());
 
-            if (StringUtils.isBlank(deviceFilter.getBrand()))
+            if (!StringUtils.isBlank(deviceFilter.getBrand()))
                 devices = deviceRepository.findByBrand(deviceFilter.getBrand());
 
         } else {
@@ -100,7 +100,7 @@ public class DeviceService implements IDeviceService {
             if (!StringUtils.isBlank(deviceRequest.getBrand()))
                 existingDevice.setBrand(deviceRequest.getBrand());
 
-            if (deviceRequest.getState() != null)
+            if (!StringUtils.isBlank(deviceRequest.getName()) && !StringUtils.isBlank(deviceRequest.getBrand()) && deviceRequest.getState() != null)
                 existingDevice.setState(deviceRequest.getState());
         }
 
