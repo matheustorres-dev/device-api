@@ -28,7 +28,7 @@ public class DeviceController {
 
         final DeviceDTO response = deviceService.getDeviceById(id);
 
-        return ObjectUtils.isEmpty(response) ? ResponseEntity.notFound().build() : ResponseEntity.ok(response);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/devices")
@@ -37,7 +37,7 @@ public class DeviceController {
 
         final List<DeviceDTO> response = deviceService.getDevices(deviceFilter);
 
-        return ObjectUtils.isEmpty(response) ? ResponseEntity.notFound().build() : ResponseEntity.ok(response);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/devices")

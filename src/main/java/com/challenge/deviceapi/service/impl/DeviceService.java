@@ -50,7 +50,11 @@ public class DeviceService implements IDeviceService {
         }
 
         log.info("Parsing list of {}", (ObjectUtils.isEmpty(devices) ? 0 : devices.size()));
-        return devices.stream()
+
+        if (ObjectUtils.isEmpty(devices))
+            throw new DeviceNotFoundException();
+        else
+            return devices.stream()
                 .map(DeviceMapper::toDTO)
                 .collect(Collectors.toList());
     }
