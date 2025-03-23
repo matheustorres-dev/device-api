@@ -29,8 +29,8 @@ class DeviceControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    private final String deviceId = "12345";
-    private final String deviceName = "Test Device";
+    private final String deviceId = "D3viceId1";
+    private final String deviceName = "Test Name";
 
     @Test
     void getDeviceById_shouldReturnDevice_whenDeviceExists() throws Exception {
