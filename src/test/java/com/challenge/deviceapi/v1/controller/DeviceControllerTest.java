@@ -20,6 +20,7 @@ import java.util.List;
 
 import static com.challenge.deviceapi.util.DeviceTestUtils.deviceId;
 import static com.challenge.deviceapi.util.DeviceTestUtils.deviceName;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -208,5 +209,21 @@ class DeviceControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(invalidRequest)))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void deleteDevice_shouldReturnNoContent_whenDeviceIsDeletedSuccessfully() throws Exception {
+        mockMvc.perform(delete("/devices/{id}", deviceId)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void deleteDevice_shouldReturnNotFound_whenDeviceDoesNotExist() throws Exception {
+        doThrow(new DeviceNotFoundException()).when(deviceService).deleteDevice(deviceId);
+
+        mockMvc.perform(delete("/devices/{id}", deviceId)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
     }
 }
