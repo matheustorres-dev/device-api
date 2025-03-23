@@ -3,9 +3,10 @@ package com.challenge.deviceapi.service.impl;
 import com.challenge.deviceapi.dto.DeviceDTO;
 import com.challenge.deviceapi.dto.DeviceFilter;
 import com.challenge.deviceapi.dto.request.DeviceCreateRequestDTO;
-import com.challenge.deviceapi.dto.request.DeviceRequestDTO;
+import com.challenge.deviceapi.dto.request.DeviceUpdateRequestDTO;
 import com.challenge.deviceapi.enumeration.DeviceState;
 import com.challenge.deviceapi.exception.DeviceInUseException;
+import com.challenge.deviceapi.exception.DeviceInvalidException;
 import com.challenge.deviceapi.exception.DeviceNotFoundException;
 import com.challenge.deviceapi.mapper.DeviceMapper;
 import com.challenge.deviceapi.model.Device;
@@ -77,16 +78,20 @@ public class DeviceService implements IDeviceService {
     }
 
     @Override
-    public DeviceDTO updateDevice(final String deviceId, final DeviceRequestDTO deviceRequest) {
+    public DeviceDTO updateDevice(final String deviceId, final DeviceUpdateRequestDTO deviceRequest) {
         log.info("Updating a device by Id: {} - {}", deviceId, deviceRequest);
+
+        if (StringUtils.isBlank(deviceRequest.getName()) && StringUtils.isBlank(deviceRequest.getBrand()) && deviceRequest.getState() == null) {
+            log.error("Device info to update is invalid {}.", deviceRequest);
+            throw new DeviceInvalidException();
+        }
 
         Device existingDevice = this.findDeviceById(deviceId);
 
         if (DeviceState.IN_USE.equals(existingDevice.getState())) {
             log.error("Device {} is IN_USE, cannot proceed with update.", deviceId);
             throw new DeviceInUseException();
-        }
-        else {
+        } else {
             log.info("Device {} not IN_USE, able to UPDATE with the current state {}", deviceId, existingDevice.getState());
 
             if (!StringUtils.isBlank(deviceRequest.getName()))

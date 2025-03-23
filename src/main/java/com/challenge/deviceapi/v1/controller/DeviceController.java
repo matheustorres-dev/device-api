@@ -3,7 +3,7 @@ package com.challenge.deviceapi.v1.controller;
 import com.challenge.deviceapi.dto.DeviceDTO;
 import com.challenge.deviceapi.dto.DeviceFilter;
 import com.challenge.deviceapi.dto.request.DeviceCreateRequestDTO;
-import com.challenge.deviceapi.dto.request.DeviceRequestDTO;
+import com.challenge.deviceapi.dto.request.DeviceUpdateRequestDTO;
 import com.challenge.deviceapi.service.impl.DeviceService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -48,14 +48,14 @@ public class DeviceController {
     }
 
     @PutMapping("/devices/{id}")
-    public ResponseEntity<DeviceDTO> updateDevice(@PathVariable String id, @RequestBody DeviceRequestDTO deviceRequest) {
+    public ResponseEntity<DeviceDTO> updateDevice(@PathVariable String id, @RequestBody DeviceUpdateRequestDTO deviceRequest) {
         log.info("API is trying to update a device: {}", id);
 
         return ResponseEntity.ok(deviceService.updateDevice(id, deviceRequest));
     }
 
     @PatchMapping("/devices/{id}")
-    public ResponseEntity<DeviceDTO> updatePartialDevice(@PathVariable String id, @RequestBody DeviceRequestDTO deviceRequest) {
+    public ResponseEntity<DeviceDTO> updatePartialDevice(@PathVariable String id, @RequestBody DeviceUpdateRequestDTO deviceRequest) {
         log.info("API is trying to update partially a device: {} - {}", id, deviceRequest);
 
         return ResponseEntity.ok(deviceService.updateDevice(id, deviceRequest));

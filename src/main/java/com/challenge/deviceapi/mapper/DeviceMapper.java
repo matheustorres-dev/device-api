@@ -3,7 +3,7 @@ package com.challenge.deviceapi.mapper;
 
 import com.challenge.deviceapi.dto.DeviceDTO;
 import com.challenge.deviceapi.dto.request.DeviceCreateRequestDTO;
-import com.challenge.deviceapi.dto.request.DeviceRequestDTO;
+import com.challenge.deviceapi.dto.request.DeviceUpdateRequestDTO;
 import com.challenge.deviceapi.model.Device;
 import org.modelmapper.ModelMapper;
 
@@ -19,7 +19,7 @@ public class DeviceMapper {
         return modelMapper.map(deviceCreateRequest, Device.class);
     }
 
-    public static Device requestToEntity(DeviceRequestDTO deviceRequest) {
+    public static Device requestToEntity(DeviceUpdateRequestDTO deviceRequest) {
         if (deviceRequest == null) {
             return null;
         }

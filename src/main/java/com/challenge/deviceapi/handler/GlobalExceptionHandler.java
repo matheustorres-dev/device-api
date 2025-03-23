@@ -2,6 +2,7 @@ package com.challenge.deviceapi.handler;
 
 import com.challenge.deviceapi.dto.ErrorMessage;
 import com.challenge.deviceapi.exception.DeviceInUseException;
+import com.challenge.deviceapi.exception.DeviceInvalidException;
 import com.challenge.deviceapi.exception.DeviceNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,6 +11,14 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 @ControllerAdvice
 class GlobalExceptionHandler {
+
+    @ExceptionHandler(DeviceInvalidException.class)
+    public ResponseEntity<ErrorMessage> handleBadRequestException(DeviceNotFoundException ex) {
+        return new ResponseEntity<>(ErrorMessage.builder().message(ex.getMessage())
+                .httpStatus(HttpStatus.BAD_REQUEST.value())
+                .build(),
+                HttpStatus.BAD_REQUEST);
+    }
 
     @ExceptionHandler(DeviceNotFoundException.class)
     public ResponseEntity<ErrorMessage> handleNotFoundException(DeviceNotFoundException ex) {

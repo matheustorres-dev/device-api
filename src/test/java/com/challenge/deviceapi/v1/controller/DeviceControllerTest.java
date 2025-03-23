@@ -3,7 +3,8 @@ package com.challenge.deviceapi.v1.controller;
 import com.challenge.deviceapi.dto.DeviceDTO;
 import com.challenge.deviceapi.dto.DeviceFilter;
 import com.challenge.deviceapi.dto.request.DeviceCreateRequestDTO;
-import com.challenge.deviceapi.dto.request.DeviceRequestDTO;
+import com.challenge.deviceapi.dto.request.DeviceUpdateRequestDTO;
+import com.challenge.deviceapi.exception.DeviceInvalidException;
 import com.challenge.deviceapi.exception.DeviceNotFoundException;
 import com.challenge.deviceapi.service.impl.DeviceService;
 import com.challenge.deviceapi.util.DeviceTestUtils;
@@ -15,14 +16,12 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.Collections;
 import java.util.List;
 
 import static com.challenge.deviceapi.util.DeviceTestUtils.deviceId;
 import static com.challenge.deviceapi.util.DeviceTestUtils.deviceName;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -132,4 +131,82 @@ class DeviceControllerTest {
                 .andExpect(status().isBadRequest());
     }
      */
+
+    @Test
+    void updateDevice_shouldReturnUpdatedDevice_whenRequestIsValid() throws Exception {
+        final DeviceUpdateRequestDTO request = DeviceTestUtils.generateValidUpdateDeviceRequest();
+
+        final DeviceDTO response = DeviceTestUtils.generateDeviceDTO();
+
+        when(deviceService.updateDevice(deviceId, request)).thenReturn(response);
+
+        mockMvc.perform(put("/devices/{id}", deviceId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(content().json(objectMapper.writeValueAsString(response)));
+    }
+
+    @Test
+    void updateDevice_shouldReturnNotFound_whenDeviceDoesNotExist() throws Exception {
+        final DeviceUpdateRequestDTO request = DeviceTestUtils.generateValidUpdateDeviceRequest();
+
+        when(deviceService.updateDevice(deviceId, request)).thenThrow(new DeviceNotFoundException());
+
+        mockMvc.perform(put("/devices/{id}", deviceId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void updateDevice_shouldReturnBadRequest_whenRequestIsInvalid() throws Exception {
+        final DeviceUpdateRequestDTO invalidRequest = DeviceTestUtils.generateInvalidUpdateDeviceRequest();
+
+        when(deviceService.updateDevice(deviceId, invalidRequest)).thenThrow(new DeviceInvalidException());
+
+        mockMvc.perform(put("/devices/{id}", deviceId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(invalidRequest)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void patchDevice_shouldReturnUpdatedDevice_whenRequestIsValid() throws Exception {
+        final DeviceUpdateRequestDTO request = DeviceTestUtils.generateValidUpdateDeviceRequest();
+
+        final DeviceDTO response = DeviceTestUtils.generateDeviceDTO();
+
+        when(deviceService.updateDevice(deviceId, request)).thenReturn(response);
+
+        mockMvc.perform(patch("/devices/{id}", deviceId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(content().json(objectMapper.writeValueAsString(response)));
+    }
+
+    @Test
+    void patchDevice_shouldReturnNotFound_whenDeviceDoesNotExist() throws Exception {
+        final DeviceUpdateRequestDTO request = DeviceTestUtils.generateValidUpdateDeviceRequest();
+
+        when(deviceService.updateDevice(deviceId, request)).thenThrow(new DeviceNotFoundException());
+
+        mockMvc.perform(patch("/devices/{id}", deviceId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void patchDevice_shouldReturnBadRequest_whenRequestIsInvalid() throws Exception {
+        final DeviceUpdateRequestDTO invalidRequest = DeviceTestUtils.generateInvalidUpdateDeviceRequest();
+
+        when(deviceService.updateDevice(deviceId, invalidRequest)).thenThrow(new DeviceInvalidException());
+
+        mockMvc.perform(patch("/devices/{id}", deviceId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(invalidRequest)))
+                .andExpect(status().isBadRequest());
+    }
 }
