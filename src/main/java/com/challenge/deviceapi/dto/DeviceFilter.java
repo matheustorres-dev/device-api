@@ -1,5 +1,6 @@
 package com.challenge.deviceapi.dto;
 
+import com.challenge.deviceapi.enumeration.DeviceState;
 import lombok.Builder;
 import lombok.Data;
 import lombok.ToString;
@@ -10,10 +11,10 @@ import org.apache.commons.lang3.StringUtils;
 @ToString
 public class DeviceFilter {
 
-    private String name;
     private String brand;
+    private DeviceState state;
 
     public boolean isEmpty() {
-        return StringUtils.isBlank(name) && StringUtils.isBlank(brand);
+        return StringUtils.isBlank(brand) && state == null;
     }
 }

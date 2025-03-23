@@ -91,21 +91,6 @@ class DeviceServiceTest {
     }
 
     @Test
-    void whenGetDevicesWithNameFilterThenReturnFilteredDevicesTest() {
-        final DeviceFilter filter = DeviceFilter.builder().name(deviceName).build();
-        final List<Device> devices = List.of(generateDeviceEntity());
-
-        when(deviceRepository.findByName(deviceName)).thenReturn(devices);
-
-        final List<DeviceDTO> result = deviceService.getDevices(filter);
-
-        assertNotNull(result);
-        assertEquals(1, result.size());
-        assertEquals(deviceName, result.getFirst().getName());
-        verify(deviceRepository, only()).findByName(deviceName);
-    }
-
-    @Test
     void whenGetDevicesWithBrandFilterThenReturnFilteredDevicesTest() {
         final DeviceFilter filter = DeviceFilter.builder().brand(deviceBrand).build();
         final List<Device> devices = List.of(generateDeviceEntity());
@@ -121,13 +106,28 @@ class DeviceServiceTest {
     }
 
     @Test
-    void whenGetDevicesWithFilterAndNoDevicesFoundThenThrowDeviceNotFoundExceptionTest() {
-        final DeviceFilter filter = DeviceFilter.builder().name(deviceName).build();
+    void whenGetDevicesWithStateFilterThenReturnFilteredDevicesTest() {
+        final DeviceFilter filter = DeviceFilter.builder().state(deviceStateAvailable).build();
+        final List<Device> devices = List.of(generateDeviceEntity());
 
-        when(deviceRepository.findByName(deviceName)).thenReturn(Collections.emptyList());
+        when(deviceRepository.findByState(deviceStateAvailable)).thenReturn(devices);
+
+        final List<DeviceDTO> result = deviceService.getDevices(filter);
+
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals(deviceName, result.getFirst().getName());
+        verify(deviceRepository, only()).findByState(deviceStateAvailable);
+    }
+
+    @Test
+    void whenGetDevicesWithFilterAndNoDevicesFoundThenThrowDeviceNotFoundExceptionTest() {
+        final DeviceFilter filter = DeviceFilter.builder().state(deviceStateAvailable).build();
+
+        when(deviceRepository.findByState(deviceStateAvailable)).thenReturn(Collections.emptyList());
 
         assertThrows(DeviceNotFoundException.class, () -> deviceService.getDevices(filter));
-        verify(deviceRepository, only()).findByName(deviceName);
+        verify(deviceRepository, only()).findByState(deviceStateAvailable);
     }
 
     @Test

@@ -42,13 +42,6 @@ public class DeviceTestUtils {
                 .build();
     }
 
-    public static DeviceFilter generateFullFilter() {
-        return DeviceFilter.builder()
-                .name(deviceName)
-                .brand(deviceBrand)
-                .build();
-    }
-
     public static DeviceCreateRequestDTO generateValidCreateDeviceRequest() {
         return DeviceCreateRequestDTO.builder()
                 .name(deviceName)

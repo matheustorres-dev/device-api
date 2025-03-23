@@ -44,11 +44,11 @@ public class DeviceService implements IDeviceService {
 
         if (!ObjectUtils.isEmpty(deviceFilter) && !deviceFilter.isEmpty()) {
 
-            if (!StringUtils.isBlank(deviceFilter.getName()))
-                devices = deviceRepository.findByName(deviceFilter.getName());
-
             if (!StringUtils.isBlank(deviceFilter.getBrand()))
                 devices = deviceRepository.findByBrand(deviceFilter.getBrand());
+
+            if (deviceFilter.getState() != null)
+                devices = deviceRepository.findByState(deviceFilter.getState());
 
         } else {
             devices = deviceRepository.findAll();

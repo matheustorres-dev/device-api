@@ -18,8 +18,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 
-import static com.challenge.deviceapi.util.DeviceTestUtils.deviceId;
-import static com.challenge.deviceapi.util.DeviceTestUtils.deviceName;
+import static com.challenge.deviceapi.util.DeviceTestUtils.*;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -64,7 +63,7 @@ class DeviceControllerTest {
         final DeviceDTO deviceGenerated = DeviceTestUtils.generateDeviceDTO();
 
         final DeviceFilter filter = DeviceFilter.builder()
-                .name(deviceName)
+                .state(deviceStateAvailable)
                 .build();
 
         final List<DeviceDTO> deviceList = List.of(deviceGenerated, deviceGenerated);
@@ -82,7 +81,7 @@ class DeviceControllerTest {
     void getDevices_shouldReturnNotFound_whenNoDevicesMatchFilter() throws Exception {
 
         final DeviceFilter filter = DeviceFilter.builder()
-                .name(deviceName)
+                .brand(deviceBrand)
                 .build();
 
         when(deviceService.getDevices(filter)).thenThrow(new DeviceNotFoundException());
