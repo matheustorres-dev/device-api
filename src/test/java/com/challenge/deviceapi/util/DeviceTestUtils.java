@@ -2,6 +2,8 @@ package com.challenge.deviceapi.util;
 
 import com.challenge.deviceapi.dto.DeviceDTO;
 import com.challenge.deviceapi.dto.DeviceFilter;
+import com.challenge.deviceapi.dto.request.DeviceCreateRequestDTO;
+import com.challenge.deviceapi.dto.request.DeviceRequestDTO;
 import com.challenge.deviceapi.enumeration.DeviceState;
 import com.challenge.deviceapi.model.Device;
 
@@ -44,6 +46,21 @@ public class DeviceTestUtils {
         return DeviceFilter.builder()
                 .name(deviceName)
                 .brand(deviceBrand)
+                .build();
+    }
+
+    public static DeviceCreateRequestDTO generateValidCreateDeviceRequest() {
+        return DeviceCreateRequestDTO.builder()
+                .name(deviceName)
+                .brand(deviceBrand)
+                .state(deviceStateAvailable)
+                .build();
+    }
+
+    public static DeviceCreateRequestDTO generateInvalidCreateDeviceRequest() {
+        return DeviceCreateRequestDTO.builder()
+                .name("")
+                .brand("")
                 .build();
     }
 }

@@ -2,6 +2,8 @@ package com.challenge.deviceapi.v1.controller;
 
 import com.challenge.deviceapi.dto.DeviceDTO;
 import com.challenge.deviceapi.dto.DeviceFilter;
+import com.challenge.deviceapi.dto.request.DeviceCreateRequestDTO;
+import com.challenge.deviceapi.dto.request.DeviceRequestDTO;
 import com.challenge.deviceapi.exception.DeviceNotFoundException;
 import com.challenge.deviceapi.service.impl.DeviceService;
 import com.challenge.deviceapi.util.DeviceTestUtils;
@@ -20,6 +22,7 @@ import static com.challenge.deviceapi.util.DeviceTestUtils.deviceId;
 import static com.challenge.deviceapi.util.DeviceTestUtils.deviceName;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -102,4 +105,31 @@ class DeviceControllerTest {
                         .content(objectMapper.writeValueAsString(filter)))
                 .andExpect(status().isNotFound());
     }
+
+    @Test
+    void createDevice_shouldReturnCreatedDevice_whenDeviceIsValid() throws Exception {
+        final DeviceCreateRequestDTO request = DeviceTestUtils.generateValidCreateDeviceRequest();
+
+        final DeviceDTO response = DeviceTestUtils.generateDeviceDTO();
+
+        when(deviceService.createDevice(request)).thenReturn(response);
+
+        mockMvc.perform(post("/devices")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isCreated())
+                .andExpect(content().json(objectMapper.writeValueAsString(response)));
+    }
+
+    /*
+    @Test
+    void createDevice_shouldReturnBadRequest_whenDeviceHasValidationError() throws Exception {
+        final DeviceCreateRequestDTO invalidRequest = DeviceTestUtils.generateInvalidCreateDeviceRequest();
+
+        mockMvc.perform(post("/devices")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(invalidRequest)))
+                .andExpect(status().isBadRequest());
+    }
+     */
 }

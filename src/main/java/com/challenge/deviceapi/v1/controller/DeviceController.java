@@ -2,6 +2,7 @@ package com.challenge.deviceapi.v1.controller;
 
 import com.challenge.deviceapi.dto.DeviceDTO;
 import com.challenge.deviceapi.dto.DeviceFilter;
+import com.challenge.deviceapi.dto.request.DeviceCreateRequestDTO;
 import com.challenge.deviceapi.dto.request.DeviceRequestDTO;
 import com.challenge.deviceapi.service.impl.DeviceService;
 import lombok.extern.slf4j.Slf4j;
@@ -40,10 +41,10 @@ public class DeviceController {
     }
 
     @PostMapping("/devices")
-    public ResponseEntity<DeviceDTO> createDevice(@RequestBody DeviceRequestDTO deviceRequest) {
-        log.info("API is trying to create a new device: {}", deviceRequest);
+    public ResponseEntity<DeviceDTO> createDevice(@RequestBody DeviceCreateRequestDTO deviceCreateRequest) {
+        log.info("API is trying to create a new device: {}", deviceCreateRequest);
 
-        return new ResponseEntity<>(deviceService.createDevice(deviceRequest), HttpStatus.CREATED);
+        return new ResponseEntity<>(deviceService.createDevice(deviceCreateRequest), HttpStatus.CREATED);
     }
 
     @PutMapping("/devices/{id}")

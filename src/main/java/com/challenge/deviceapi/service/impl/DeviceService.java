@@ -2,6 +2,7 @@ package com.challenge.deviceapi.service.impl;
 
 import com.challenge.deviceapi.dto.DeviceDTO;
 import com.challenge.deviceapi.dto.DeviceFilter;
+import com.challenge.deviceapi.dto.request.DeviceCreateRequestDTO;
 import com.challenge.deviceapi.dto.request.DeviceRequestDTO;
 import com.challenge.deviceapi.enumeration.DeviceState;
 import com.challenge.deviceapi.exception.DeviceInUseException;
@@ -15,6 +16,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -46,6 +48,7 @@ public class DeviceService implements IDeviceService {
 
             if (StringUtils.isBlank(deviceFilter.getBrand()))
                 devices = deviceRepository.findByBrand(deviceFilter.getBrand());
+
         } else {
             devices = deviceRepository.findAll();
         }
@@ -61,10 +64,13 @@ public class DeviceService implements IDeviceService {
     }
 
     @Override
-    public DeviceDTO createDevice(final DeviceRequestDTO deviceRequest) {
+    public DeviceDTO createDevice(final DeviceCreateRequestDTO deviceRequest) {
         log.info("Creating a device: {}", deviceRequest);
 
-        DeviceDTO createdDevice = DeviceMapper.toDTO(deviceRepository.save(DeviceMapper.requestToEntity(deviceRequest)));
+        final Device newDevice = DeviceMapper.requestToEntity(deviceRequest);
+        newDevice.setCreationDate(LocalDateTime.now());
+
+        final DeviceDTO createdDevice = DeviceMapper.toDTO(deviceRepository.save(newDevice));
 
         log.info("Device created successfully: {}", createdDevice);
         return createdDevice;
