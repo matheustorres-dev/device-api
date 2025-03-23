@@ -99,6 +99,9 @@ public class DeviceService implements IDeviceService {
 
             if (!StringUtils.isBlank(deviceRequest.getBrand()))
                 existingDevice.setBrand(deviceRequest.getBrand());
+
+            if (deviceRequest.getState() != null)
+                existingDevice.setState(deviceRequest.getState());
         }
 
         DeviceDTO updatedDevice = DeviceMapper.toDTO(deviceRepository.save(existingDevice));

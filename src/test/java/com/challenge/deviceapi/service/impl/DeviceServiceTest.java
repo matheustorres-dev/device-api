@@ -1,6 +1,8 @@
 package com.challenge.deviceapi.service.impl;
 
 import com.challenge.deviceapi.dto.DeviceDTO;
+import com.challenge.deviceapi.enumeration.DeviceState;
+import com.challenge.deviceapi.exception.DeviceInUseException;
 import com.challenge.deviceapi.exception.DeviceNotFoundException;
 import com.challenge.deviceapi.model.Device;
 import com.challenge.deviceapi.repository.DeviceRepository;
@@ -17,13 +19,13 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class DeviceServiceTest {
-    
+
     @InjectMocks
     private DeviceService deviceService;
-    
+
     @Mock
     private DeviceRepository deviceRepository;
-    
+
     public DeviceServiceTest() {
         MockitoAnnotations.openMocks(this);
     }
@@ -32,7 +34,7 @@ class DeviceServiceTest {
     void whenGetDeviceByIdAndDeviceExistsThenReturnDeviceTest() {
 
         final Device deviceGenerated = DeviceTestUtils.generateDeviceEntity();
-        
+
         when(deviceRepository.findById(deviceId)).thenReturn(Optional.of(deviceGenerated));
 
         final DeviceDTO result = deviceService.getDeviceById(deviceId);
@@ -47,10 +49,41 @@ class DeviceServiceTest {
     }
 
     @Test
-    void whenGetDeviceByIdAndDeviceNotFoundThenReturnNotFoundExceptionTest() {
+    void whenGetDeviceByIdButDeviceNotFoundThenReturnNotFoundExceptionTest() {
         when(deviceRepository.findById(deviceId)).thenReturn(Optional.empty());
 
         assertThrows(DeviceNotFoundException.class, () -> deviceService.getDeviceById(deviceId));
+        verify(deviceRepository, only()).findById(deviceId);
+    }
+
+    @Test
+    void whenDeleteDeviceAndDeviceExistsThenDeleteSuccessfullyTest() {
+        final Device deviceGenerated = DeviceTestUtils.generateDeviceEntity();
+
+        when(deviceRepository.findById(deviceId)).thenReturn(Optional.of(deviceGenerated));
+        doNothing().when(deviceRepository).deleteById(deviceId);
+
+        assertDoesNotThrow(() -> deviceService.deleteDevice(deviceId));
+        verify(deviceRepository, times(1)).findById(deviceId);
+        verify(deviceRepository, times(1)).deleteById(deviceId);
+    }
+
+    @Test
+    void whenDeleteDeviceButDeviceInUseThenThrowDeviceInUseExceptionTest() {
+        final Device deviceGenerated = DeviceTestUtils.generateDeviceEntity();
+        deviceGenerated.setState(DeviceState.IN_USE);
+
+        when(deviceRepository.findById(deviceId)).thenReturn(Optional.of(deviceGenerated));
+
+        assertThrows(DeviceInUseException.class, () -> deviceService.deleteDevice(deviceId));
+        verify(deviceRepository, only()).findById(deviceId);
+    }
+
+    @Test
+    void whenDeleteDeviceButDeviceNotFoundThenThrowDeviceNotFoundExceptionTest() {
+        when(deviceRepository.findById(deviceId)).thenReturn(Optional.empty());
+
+        assertThrows(DeviceNotFoundException.class, () -> deviceService.deleteDevice(deviceId));
         verify(deviceRepository, only()).findById(deviceId);
     }
 }
