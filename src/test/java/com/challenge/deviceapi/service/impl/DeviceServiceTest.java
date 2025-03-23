@@ -2,6 +2,7 @@ package com.challenge.deviceapi.service.impl;
 
 import com.challenge.deviceapi.dto.DeviceDTO;
 import com.challenge.deviceapi.dto.request.DeviceCreateRequestDTO;
+import com.challenge.deviceapi.dto.request.DeviceUpdateRequestDTO;
 import com.challenge.deviceapi.enumeration.DeviceState;
 import com.challenge.deviceapi.exception.DeviceInUseException;
 import com.challenge.deviceapi.exception.DeviceInvalidException;
@@ -71,7 +72,58 @@ class DeviceServiceTest {
         assertEquals(deviceName, result.getName());
         assertEquals(deviceBrand, result.getBrand());
         assertEquals(deviceStateAvailable, result.getState());
+        assertNotNull(result.getCreationDate());
+        verify(deviceRepository, only()).save(any(Device.class));
+    }
+
+    @Test
+    void whenUpdateDeviceWithValidRequestThenReturnUpdatedDeviceTest() {
+        final DeviceUpdateRequestDTO request = DeviceTestUtils.generateValidUpdateDeviceRequest();
+        final Device device = DeviceTestUtils.generateDeviceEntity();
+
+        when(deviceRepository.findById(deviceId)).thenReturn(Optional.of(device));
+        when(deviceRepository.save(any(Device.class))).thenReturn(device);
+
+        final DeviceDTO result = deviceService.updateDevice(deviceId, request);
+
+        assertNotNull(result);
+        assertEquals(deviceName, result.getName());
+        assertEquals(deviceBrand, result.getBrand());
+        assertEquals(deviceStateAvailable, result.getState());
+        assertNotNull(result.getCreationDate());
+        verify(deviceRepository, times(1)).findById(deviceId);
         verify(deviceRepository, times(1)).save(any(Device.class));
+    }
+
+    @Test
+    void whenUpdateDeviceWithInvalidRequestThenThrowDeviceInvalidExceptionTest() {
+        final DeviceUpdateRequestDTO request = DeviceTestUtils.generateInvalidUpdateDeviceRequest();
+
+        assertThrows(DeviceInvalidException.class, () -> deviceService.updateDevice(deviceId, request));
+        verify(deviceRepository, never()).findById(deviceId);
+    }
+
+    @Test
+    void whenUpdateDeviceNotFoundThenThrowDeviceNotFoundExceptionTest() {
+        final DeviceUpdateRequestDTO request = DeviceTestUtils.generateValidUpdateDeviceRequest();
+
+        when(deviceRepository.findById(deviceId)).thenReturn(Optional.empty());
+
+        assertThrows(DeviceNotFoundException.class, () -> deviceService.updateDevice(deviceId, request));
+        verify(deviceRepository, only()).findById(deviceId);
+    }
+
+    @Test
+    void whenUpdateDeviceInUseThenThrowDeviceInUseExceptionTest() {
+        final Device device = DeviceTestUtils.generateDeviceEntity();
+        device.setState(DeviceState.IN_USE);
+
+        final DeviceUpdateRequestDTO request = DeviceTestUtils.generateValidUpdateDeviceRequest();
+
+        when(deviceRepository.findById(deviceId)).thenReturn(Optional.of(device));
+
+        assertThrows(DeviceInUseException.class, () -> deviceService.updateDevice(deviceId, request));
+        verify(deviceRepository, only()).findById(deviceId);
     }
 
     @Test
@@ -87,6 +139,14 @@ class DeviceServiceTest {
     }
 
     @Test
+    void whenDeleteDeviceButDeviceNotFoundThenThrowDeviceNotFoundExceptionTest() {
+        when(deviceRepository.findById(deviceId)).thenReturn(Optional.empty());
+
+        assertThrows(DeviceNotFoundException.class, () -> deviceService.deleteDevice(deviceId));
+        verify(deviceRepository, only()).findById(deviceId);
+    }
+
+    @Test
     void whenDeleteDeviceButDeviceInUseThenThrowDeviceInUseExceptionTest() {
         final Device deviceGenerated = DeviceTestUtils.generateDeviceEntity();
         deviceGenerated.setState(DeviceState.IN_USE);
@@ -94,14 +154,6 @@ class DeviceServiceTest {
         when(deviceRepository.findById(deviceId)).thenReturn(Optional.of(deviceGenerated));
 
         assertThrows(DeviceInUseException.class, () -> deviceService.deleteDevice(deviceId));
-        verify(deviceRepository, only()).findById(deviceId);
-    }
-
-    @Test
-    void whenDeleteDeviceButDeviceNotFoundThenThrowDeviceNotFoundExceptionTest() {
-        when(deviceRepository.findById(deviceId)).thenReturn(Optional.empty());
-
-        assertThrows(DeviceNotFoundException.class, () -> deviceService.deleteDevice(deviceId));
         verify(deviceRepository, only()).findById(deviceId);
     }
 }

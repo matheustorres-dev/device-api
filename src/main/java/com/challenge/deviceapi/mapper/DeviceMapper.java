@@ -19,22 +19,6 @@ public class DeviceMapper {
         return modelMapper.map(deviceCreateRequest, Device.class);
     }
 
-    public static Device requestToEntity(DeviceUpdateRequestDTO deviceRequest) {
-        if (deviceRequest == null) {
-            return null;
-        }
-
-        return modelMapper.map(deviceRequest, Device.class);
-    }
-
-    public static Device toEntity(DeviceDTO deviceDTO) {
-        if (deviceDTO == null) {
-            return null;
-        }
-
-        return modelMapper.map(deviceDTO, Device.class);
-    }
-
     public static DeviceDTO toDTO(Device device) {
         if (device == null) {
             return null;
