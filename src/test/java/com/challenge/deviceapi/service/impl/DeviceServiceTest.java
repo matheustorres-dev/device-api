@@ -1,19 +1,18 @@
 package com.challenge.deviceapi.service.impl;
 
 import com.challenge.deviceapi.dto.DeviceDTO;
-import com.challenge.deviceapi.enumeration.DeviceState;
 import com.challenge.deviceapi.exception.DeviceNotFoundException;
-import com.challenge.deviceapi.mapper.DeviceMapper;
 import com.challenge.deviceapi.model.Device;
 import com.challenge.deviceapi.repository.DeviceRepository;
+import com.challenge.deviceapi.util.DeviceTestUtils;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.time.LocalDateTime;
 import java.util.Optional;
 
+import static com.challenge.deviceapi.util.DeviceTestUtils.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -25,12 +24,6 @@ class DeviceServiceTest {
     @Mock
     private DeviceRepository deviceRepository;
     
-    private final String deviceId = "D3viceId1";
-    private final String deviceName = "Test Name";
-    private final String deviceBrand = "Test Brand";
-    private final DeviceState deviceStateAvailable = DeviceState.AVAILABLE;
-    private final LocalDateTime deviceCreationDateTime = LocalDateTime.now();
-    
     public DeviceServiceTest() {
         MockitoAnnotations.openMocks(this);
     }
@@ -38,15 +31,9 @@ class DeviceServiceTest {
     @Test
     void whenGetDeviceByIdAndDeviceExistsThenReturnDeviceTest() {
 
-        final Device mockDevice = Device.builder()
-                .id(deviceId)
-                .name(deviceName)
-                .brand(deviceBrand)
-                .state(deviceStateAvailable)
-                .creationDate(deviceCreationDateTime)
-                .build();
+        final Device deviceGenerated = DeviceTestUtils.generateDeviceEntity();
         
-        when(deviceRepository.findById(deviceId)).thenReturn(Optional.of(mockDevice));
+        when(deviceRepository.findById(deviceId)).thenReturn(Optional.of(deviceGenerated));
 
         final DeviceDTO result = deviceService.getDeviceById(deviceId);
 
@@ -60,7 +47,7 @@ class DeviceServiceTest {
     }
 
     @Test
-    void testGetDeviceByIdNotFound() {
+    void whenGetDeviceByIdAndDeviceNotFoundThenReturnNotFoundExceptionTest() {
         when(deviceRepository.findById(deviceId)).thenReturn(Optional.empty());
 
         assertThrows(DeviceNotFoundException.class, () -> deviceService.getDeviceById(deviceId));

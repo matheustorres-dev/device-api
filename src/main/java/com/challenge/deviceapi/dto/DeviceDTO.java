@@ -1,15 +1,15 @@
 package com.challenge.deviceapi.dto;
 
 import com.challenge.deviceapi.enumeration.DeviceState;
-import lombok.Builder;
-import lombok.Data;
-import lombok.ToString;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Data
 @Builder
 @ToString
+@NoArgsConstructor
+@AllArgsConstructor
 public class DeviceDTO {
 
     private String id;
