@@ -215,6 +215,31 @@ class DeviceServiceTest {
     }
 
     @Test
+    void whenPartiallyUpdateDeviceWithOnlyStateRequestThenReturnUpdatedDeviceTest() {
+        final DeviceState updatedState = deviceStateAvailable;
+
+        final DeviceUpdateRequestDTO request = DeviceUpdateRequestDTO.builder()
+                .state(updatedState)
+                .build();
+
+        final Device device = DeviceTestUtils.generateDeviceEntity();
+        device.setState(DeviceState.IN_USE);
+
+        when(deviceRepository.findById(deviceId)).thenReturn(Optional.of(device));
+        when(deviceRepository.save(any(Device.class))).thenReturn(device);
+
+        final DeviceDTO result = deviceService.updateDevice(deviceId, request);
+
+        assertNotNull(result);
+        assertEquals(deviceName, result.getName());
+        assertEquals(deviceBrand, result.getBrand());
+        assertEquals(updatedState, result.getState());
+        assertNotNull(result.getCreationDate());
+        verify(deviceRepository, times(1)).findById(deviceId);
+        verify(deviceRepository, times(1)).save(any(Device.class));
+    }
+
+    @Test
     void whenUpdateDeviceWithInvalidRequestThenThrowDeviceInvalidExceptionTest() {
         final DeviceUpdateRequestDTO request = DeviceTestUtils.generateInvalidUpdateDeviceRequest();
 
@@ -233,11 +258,32 @@ class DeviceServiceTest {
     }
 
     @Test
-    void whenUpdateDeviceInUseThenThrowDeviceInUseExceptionTest() {
+    void whenUpdateDeviceNameButDeviceInUseThenThrowDeviceInUseExceptionTest() {
+        final String updatedName = "updatedName";
+
+        final DeviceUpdateRequestDTO request = DeviceUpdateRequestDTO.builder()
+                .name(updatedName)
+                .build();
+
         final Device device = DeviceTestUtils.generateDeviceEntity();
         device.setState(DeviceState.IN_USE);
 
-        final DeviceUpdateRequestDTO request = DeviceTestUtils.generateValidUpdateDeviceRequest();
+        when(deviceRepository.findById(deviceId)).thenReturn(Optional.of(device));
+
+        assertThrows(DeviceInUseException.class, () -> deviceService.updateDevice(deviceId, request));
+        verify(deviceRepository, only()).findById(deviceId);
+    }
+
+    @Test
+    void whenUpdateDeviceBrandButDeviceInUseThenThrowDeviceInUseExceptionTest() {
+        final String updatedBrand = "updatedBrand";
+
+        final DeviceUpdateRequestDTO request = DeviceUpdateRequestDTO.builder()
+                .brand(updatedBrand)
+                .build();
+
+        final Device device = DeviceTestUtils.generateDeviceEntity();
+        device.setState(DeviceState.IN_USE);
 
         when(deviceRepository.findById(deviceId)).thenReturn(Optional.of(device));
 

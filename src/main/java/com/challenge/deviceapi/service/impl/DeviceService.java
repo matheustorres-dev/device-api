@@ -82,17 +82,26 @@ public class DeviceService implements IDeviceService {
         log.info("Updating a device by Id: {} - {}", deviceId, deviceRequest);
 
         if (StringUtils.isBlank(deviceRequest.getName()) && StringUtils.isBlank(deviceRequest.getBrand()) && deviceRequest.getState() == null) {
-            log.error("Device info to update is invalid {}.", deviceRequest);
+            log.error("Device data to update is invalid {}.", deviceRequest);
             throw new DeviceInvalidException();
         }
 
         Device existingDevice = this.findDeviceById(deviceId);
 
         if (DeviceState.IN_USE.equals(existingDevice.getState())) {
-            log.error("Device {} is IN_USE, cannot proceed with update.", deviceId);
-            throw new DeviceInUseException();
+
+            if (!StringUtils.isBlank(deviceRequest.getName()) || !StringUtils.isBlank(deviceRequest.getBrand())) {
+
+                log.error("Device {} is IN_USE, cannot proceed to UPDATE the NAME or BRAND.", deviceId);
+                throw new DeviceInUseException();
+            } else if (deviceRequest.getState() != null) {
+
+                log.info("Device {} is IN_USE, but is allow to UPDATE the STATE to {}.", deviceId, deviceRequest.getState());
+                existingDevice.setState(deviceRequest.getState());
+            }
+
         } else {
-            log.info("Device {} not IN_USE, able to UPDATE with the current state {}", deviceId, existingDevice.getState());
+            log.info("Device {} not IN_USE, able to UPDATE the with the current state {}", deviceId, existingDevice.getState());
 
             if (!StringUtils.isBlank(deviceRequest.getName()))
                 existingDevice.setName(deviceRequest.getName());
@@ -100,7 +109,7 @@ public class DeviceService implements IDeviceService {
             if (!StringUtils.isBlank(deviceRequest.getBrand()))
                 existingDevice.setBrand(deviceRequest.getBrand());
 
-            if (!StringUtils.isBlank(deviceRequest.getName()) && !StringUtils.isBlank(deviceRequest.getBrand()) && deviceRequest.getState() != null)
+            if (deviceRequest.getState() != null)
                 existingDevice.setState(deviceRequest.getState());
         }
 

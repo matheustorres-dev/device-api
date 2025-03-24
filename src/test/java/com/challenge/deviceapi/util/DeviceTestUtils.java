@@ -50,13 +50,6 @@ public class DeviceTestUtils {
                 .build();
     }
 
-    public static DeviceCreateRequestDTO generateInvalidCreateDeviceRequest() {
-        return DeviceCreateRequestDTO.builder()
-                .name("")
-                .brand("")
-                .build();
-    }
-
     public static DeviceUpdateRequestDTO generateValidUpdateDeviceRequest() {
         return DeviceUpdateRequestDTO.builder()
                 .name(deviceName)
