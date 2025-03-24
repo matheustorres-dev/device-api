@@ -30,7 +30,7 @@ It is also possible to access API documentation when the project is running, by 
 
 ## Endpoint
 
-You can access the API: http://localhost:8080/devices/v1/
+You can access the API locally here: http://localhost:8080/devices/
 
 
 ## Code Coverage
