@@ -4,6 +4,7 @@ import com.challenge.deviceapi.enumeration.DeviceState;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import lombok.*;
+import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDateTime;
 
@@ -16,6 +17,7 @@ import java.time.LocalDateTime;
 public class Device {
 
     @Id
+    @UuidGenerator
     private String id;
 
     private String name;
